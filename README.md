@@ -1,5 +1,5 @@
-# Nombre del proyecto
-## Urban Routes: pruebas automatizadas para el proceso completo de pedir un taxi
+
+# Urban Routes: pruebas automatizadas para el proceso completo de pedir un taxi
 Grupo 15, Sprint 8, Pilar Veas
 
 
