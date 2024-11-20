@@ -98,12 +98,7 @@ def test_wait_for_driver_info(self):
 
 
 
-
-
-
-
-
-     
+finally: 
     # Cerrar el navegador
     driver.quit()
 
