@@ -9,7 +9,7 @@ class TestUrbanRoutes:
     def setup_method(self):
         """Configura el entorno antes de cada prueba."""
         self.driver = webdriver.Chrome()
-        self.driver.get(data.URBAN_ROUTES_URL)
+        self.driver.get(data.urban_routes_url)
         self.routes_page = UrbanRoutesPage(self.driver)
 
     def teardown_method(self):
@@ -18,8 +18,8 @@ class TestUrbanRoutes:
 
     # Prueba 1 - Configurar la dirección
     def test_set_route(self):
-        address_from = data.ADDRESS_FROM
-        address_to = data.ADDRESS_TO
+        address_from = data.address_from
+        address_to = data.address_to
         self.routes_page.set_route(address_from, address_to)
         assert self.routes_page.get_from() == address_from
         assert self.routes_page.get_to() == address_to
@@ -54,7 +54,7 @@ class TestUrbanRoutes:
     # Prueba 6 - Escribir un mensaje para el conductor
     def test_write_message_to_driver(self):
         self.test_set_route()
-        message = data.MESSAGE_FOR_DRIVER
+        message = data.message_for_driver
         self.routes_page.write_drive_message(message)
         assert self.routes_page.get_driver_message() == message
 
