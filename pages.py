@@ -8,7 +8,7 @@ class UrbanRoutesPage:
         self.driver = driver
 
     # Selectores
-    from_input = (By.CSS_SELECTOR, "#from-input")
+    from_input = (By.CSS_SELECTOR, "#from\\.input")
     to_input = (By.CSS_SELECTOR, "#to-input")
     request_taxi_button = (By.CSS_SELECTOR, "#request-taxi")
     comfort_tariff_button = (By.CSS_SELECTOR, ".comfort-tariff")
