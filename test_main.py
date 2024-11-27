@@ -1,3 +1,4 @@
+
 # main.py
 
 import pytest
@@ -34,31 +35,40 @@ def test_set_route(routes_page):
 
 # Prueba 2: Selecciona la tarifa "Comfort"
 def test_select_comfort_tariff(routes_page):
-    routes_page.set_route(data.address_from, data.address_to)  # Configura la ruta
+    # Configura la ruta
+    routes_page.set_route(data.address_from, data.address_to)
+    # Llama al método para hacer clic en el botón de "Pedir taxi"
     routes_page.click_on_request_taxi()
-
-    # Espera hasta que el botón de tarifa esté disponible
-    WebDriverWait(routes_page.driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, ".comfort-tariff"))
-    )
     
+    # Llama al método que hace clic en el botón "Comfort"
     routes_page.click_on_comfort_tariff()
+
+    # Verifica que la tarifa seleccionada sea la de Comfort
     assert routes_page.get_selected_tariff() == "Comfort"
     print("¡Tarifa Comfort seleccionada!")
 
+
 # Prueba 3: Configura el número de teléfono
 def test_set_phone(routes_page):
+    # Configura la ruta
     routes_page.set_route(data.address_from, data.address_to)
+    
+    # Llama al método para hacer clic en el botón de "Pedir taxi"
     routes_page.click_on_request_taxi()
+    
+    # Llama al método para hacer clic en la tarifa "Comfort"
     routes_page.click_on_comfort_tariff()
+    
+    # Abre la ventana/modal para ingresar el número de teléfono
+    routes_page.click_to_open_phone_modal()
+    
+    # Usa el método para ingresar el número de teléfono
+    routes_page.set_phone_number(data.phone_number)
+    
+    # Verifica que el teléfono haya sido ingresado correctamente
+    assert routes_page.get_phone_number() == data.phone_number, "El número de teléfono no coincide"
+    print("¡Teléfono configurado correctamente!")
 
-    # Espera hasta que el campo de teléfono esté disponible
-    WebDriverWait(routes_page.driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#phone-input"))
-    )
-    routes_page.set_phone(data.phone_number)
-    assert routes_page.phone_is_set()
-    print("¡Teléfono configurado!")
 
 # Prueba 4: Agregar una tarjeta de crédito
 def test_add_card(routes_page):
@@ -146,4 +156,3 @@ def test_wait_for_driver_info(routes_page):
     driver_info = routes_page.wait_for_driver_info()
     assert driver_info is not None
     print("Información del conductor recibida")
-
