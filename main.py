@@ -133,6 +133,7 @@ def test_search_taxi_modal(routes_page):
     )
     routes_page.search_taxi()
     assert routes_page.search_modal_is_displayed()
+    print("Prueba 9 ok!")
 
 # Prueba 10: Esperar información del conductor
 def test_wait_for_driver_info(routes_page):
