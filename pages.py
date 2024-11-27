@@ -1,162 +1,74 @@
 # pages.py
 
 from selenium.webdriver.common.by import By
-from helpers import retrieve_phone_code 
-import data
+from helpers import wait_for_element, wait_for_clickable
 
 class UrbanRoutesPage:
-    # Localizadores
-    from_field = (By.ID, 'from')
-    to_field = (By.ID, 'to')
-    taxi_button = (By.CLASS_NAME, "button round")
-    comfort_button = (By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]/div[1]/div[5]')
-    select_phone_insert = (By.CLASS_NAME, 'np-text')
-    phone_input = (By.ID, 'phone')
-    number = (By.XPATH, '//*[@id="phone"]')
-    next_button = (By.XPATH, '//*[text()="Siguiente"]')
-    click_code = (By.ID, 'code_input')
-    code = (By.ID, 'code')
-    select_taxi = (By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[1]/div[3]/div[1]/button')
-    payment_method = (By.CLASS_NAME, "pp-button")
-    card_add_button = (By.CLASS_NAME, "pp-plus")
-    credit_click = (By.CLASS_NAME, 'card-number-input')
-    add_credit_card = (By.XPATH, '//*[@id="number"]')
-    card_cvv = (By.XPATH, '//div[@class="card-code-input"]/input[@id="code"]')
-    agree_card = (By.XPATH, '//*[text()="Agregar"]')
-    x_button = (By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[1]/button')
-    cell_next = (By.XPATH, '//*[text()="Confirmar"]')
-    driver_message = (By.XPATH, '//*[@id="comment"]')
-    write_message = (By.CSS_SELECTOR, "#comment")
-    blanket_and_scarves = (By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]/div[2]/div[4]/div[2]/div[1]/div/div[2]/div/span')
-    ice_cream_counter = (By.CLASS_NAME, "counter-plus")
-    taxi_search_button = (By.CLASS_NAME, "smart-button-main")
-    modal_taxi = (By.CLASS_NAME, "order-details")  # cambiar a Class name
-
     def __init__(self, driver):
         self.driver = driver
 
-    # Métodos de interacción con la página
-    def set_from(self, from_address):
-        self.driver.find_element(*self.from_field).send_keys(from_address)
+    # Selectores
+    from_input = (By.CSS_SELECTOR, "#from-input")
+    to_input = (By.CSS_SELECTOR, "#to-input")
+    request_taxi_button = (By.CSS_SELECTOR, "#request-taxi")
+    comfort_tariff_button = (By.CSS_SELECTOR, ".comfort-tariff")
+    phone_input = (By.CSS_SELECTOR, "#phone-input")
+    credit_card_form = (By.CSS_SELECTOR, "#credit-card-form")
+    confirmation_code_input = (By.CSS_SELECTOR, "#confirmation-code")
+    message_input = (By.CSS_SELECTOR, "#driver-message")
+    search_modal = (By.CSS_SELECTOR, "#search-modal")
+    driver_info = (By.CSS_SELECTOR, "#driver-info")
 
-    def set_to(self, to_address):
-        self.driver.find_element(*self.to_field).send_keys(to_address)
+    # Métodos
+    def set_route(self, address_from, address_to):
+        wait_for_element(self.driver, *self.from_input).send_keys(address_from)
+        wait_for_element(self.driver, *self.to_input).send_keys(address_to)
 
-    def set_route(self, from_address, to_address):
-        self.set_from(from_address)
-        self.set_to(to_address)
-    
     def get_from(self):
-        return self.driver.find_element(*self.from_field).get_property('value')
+        return self.driver.find_element(*self.from_input).get_attribute("value")
 
     def get_to(self):
-        return self.driver.find_element(*self.to_field).get_property('value')
+        return self.driver.find_element(*self.to_input).get_attribute("value")
 
-    def select_taxi_button(self):
-        self.driver.find_element(*self.select_taxi).click()
+    def click_on_request_taxi(self):
+        wait_for_clickable(self.driver, *self.request_taxi_button).click()
 
-    def select_comfort_rate(self):
-        self.driver.find_element(*self.comfort_button).click()
+    def click_on_comfort_tariff(self):
+        wait_for_clickable(self.driver, *self.comfort_tariff_button).click()
 
-    def select_number_button(self):
-        self.driver.find_element(*self.select_phone_insert).click()
+    def set_phone(self, phone_number):
+        wait_for_element(self.driver, *self.phone_input).send_keys(phone_number)
 
-    def add_phone_number(self):
-        self.driver.find_element(*self.number).send_keys(data.phone_number)
+    def phone_is_set(self):
+        return self.driver.find_element(*self.phone_input).get_attribute("value") != ""
 
-    def set_phone(self):
-        self.select_number_button()
-        self.add_phone_number()
+    def add_card(self, card_info):
+        form = wait_for_element(self.driver, *self.credit_card_form)
+        form.find_element(By.CSS_SELECTOR, "#card-number").send_keys(card_info["number"])
+        form.find_element(By.CSS_SELECTOR, "#expiry-date").send_keys(card_info["expiry_date"])
+        form.find_element(By.CSS_SELECTOR, "#cardholder-name").send_keys(card_info["cardholder_name"])
+        form.find_element(By.CSS_SELECTOR, "#cvv").send_keys(card_info["cvv"])
 
-    def the_next_button(self):
-        self.driver.find_element(*self.next_button).click()
+    def card_is_added(self):
+        return "Card added successfully" in self.driver.page_source
 
-    def send_cell_info(self):
-        self.driver.find_element(*self.cell_next).click()
+    def enter_confirmation_code(self, confirmation_code):
+        wait_for_element(self.driver, *self.confirmation_code_input).send_keys(confirmation_code)
 
-    def get_phone(self):
-        return self.driver.find_element(*self.phone_input).get_property('value')
-
-    def code_click(self):
-        self.driver.find_element(*self.click_code).click()
-
-    def code_number(self):
-        phone_code = retrieve_phone_code(driver=self.driver)
-        self.driver.find_element(*self.code).send_keys(phone_code)
-
-    def get_code(self):
-        return self.driver.find_element(*self.code).get_property('value')
-
-    def pay_click(self):
-        self.driver.find_element(*self.payment_method).click()
-
-    def add_click(self):
-        self.driver.find_element(*self.card_add_button).click()
-
-    def click_card(self):
-        self.pay_click()
-        self.add_click()
-
-    def number_click(self):
-        self.driver.find_element(*self.credit_click).click()
-
-    def number_input(self):
-        self.driver.find_element(*self.add_credit_card).send_keys(data.card_number)
-
-    def card_input(self):
-        self.number_click()
-        self.number_input()
-
-    def get_card_input(self):
-        return self.driver.find_element(*self.add_credit_card).get_property('value')
-
-    def cvv_add(self):
-        self.driver.find_element(*self.card_cvv).click()
-
-    def code_card_input(self):
-        self.driver.find_element(*self.card_cvv).send_keys(data.card_code)
-
-    def cvv_code(self):
-        self.code_card_input()
-
-    def get_cvv_card(self):
-        return self.driver.find_element(*self.card_cvv).get_property('value')
-
-    def registered_card(self):
-        self.driver.find_element(*self.agree_card).click()
-
-    def add_card(self):
-        self.card_input()
-        self.cvv_code()
-        self.registered_card()
-
-    def close_window(self):
-        self.driver.find_element(*self.x_button).click()
+    def confirmation_is_valid(self):
+        return "Code confirmed" in self.driver.page_source
 
     def write_drive_message(self, message):
-        message_field = self.driver.find_element(*self.driver_message)
-        message_field.send_keys(message)
+        wait_for_element(self.driver, *self.message_input).send_keys(message)
 
-    def get_message(self):
-        return self.driver.find_element(*self.driver_message).get_property('value')
-
-    def request_blanket_and_tissues(self):
-        self.driver.find_element(*self.blanket_and_scarves).click()
-
-    def get_blanket_and_scarves(self):
-        return self.driver.find_element(*self.blanket_and_scarves).get_property('value')
-
-    def request_ice_cream(self):
-        self.driver.find_element(*self.ice_cream_counter).click()
-
-    def get_ice_cream(self):
-        return self.driver.find_element(*self.ice_cream_counter).get_property('value')
+    def get_driver_message(self):
+        return self.driver.find_element(*self.message_input).get_attribute("value")
 
     def search_taxi(self):
-        self.driver.find_element(*self.taxi_search_button).click()
+        wait_for_clickable(self.driver, *self.search_modal).click()
 
-    def get_taxi(self):
-        return self.driver.find_element(*self.taxi_search_button).get_property('value')
+    def search_modal_is_displayed(self):
+        return self.driver.find_element(*self.search_modal).is_displayed()
 
     def wait_for_driver_info(self):
-        self.driver.find_element(*self.modal_taxi)
+        return wait_for_element(self.driver, *self.driver_info).text
