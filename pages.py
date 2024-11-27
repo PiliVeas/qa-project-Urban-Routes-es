@@ -1,18 +1,23 @@
 # pages.py
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait  # Importar WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC  # Importar expected_conditions
 from helpers import wait_for_element, wait_for_clickable
 
 class UrbanRoutesPage:
     def __init__(self, driver):
         self.driver = driver
 
+
     # Selectores
     from_input = (By.CSS_SELECTOR, "#from.input")
     to_input = (By.CSS_SELECTOR, "#to.input")
-    request_taxi_button = (By.CSS_SELECTOR, "#request-taxi")
-    comfort_tariff_button = (By.CSS_SELECTOR, ".comfort-tariff")
-    phone_input = (By.CSS_SELECTOR, "#phone-input")
+    request_taxi_button = (By.XPATH, "//button[text()='Pedir un taxi']")
+    comfort_tariff_button = (By.XPATH, "//button[text()='Comfort']")
+    phone_modal_button = (By.XPATH, "//div[contains(text(), 'Número de teléfono')]")  # Div que abre el modal
+    phone_input = (By.CSS_SELECTOR, "#phone")  # Campo de entrada de teléfono
+    next_button = (By.XPATH, "//button[text()='Siguiente']")  # Botón "Siguiente" en el modal
     credit_card_form = (By.CSS_SELECTOR, "#credit-card-form")
     confirmation_code_input = (By.CSS_SELECTOR, "#confirmation-code")
     message_input = (By.CSS_SELECTOR, "#driver-message")
@@ -34,13 +39,39 @@ class UrbanRoutesPage:
         wait_for_clickable(self.driver, *self.request_taxi_button).click()
 
     def click_on_comfort_tariff(self):
-        wait_for_clickable(self.driver, *self.comfort_tariff_button).click()
+        comfort_tariff_button = "//div[contains(text(), 'Comfort')]"
+        wait_for_clickable(self.driver, By.XPATH, comfort_tariff_button).click()
 
-    def set_phone(self, phone_number):
-        wait_for_element(self.driver, *self.phone_input).send_keys(phone_number)
+    def click_to_open_phone_modal(self):
+        # Ajusta el XPath al elemento correcto
+        open_phone_modal_xpath = "//div[contains(@class, 'np-text') and text()='Número de teléfono']"
+    
+        # Espera a que el elemento sea visible
+        open_phone_modal = wait_for_element(self.driver, By.XPATH, open_phone_modal_xpath)
+        open_phone_modal.click()
 
-    def phone_is_set(self):
-        return self.driver.find_element(*self.phone_input).get_attribute("value") != ""
+
+
+    def set_phone_number(self, phone_number):
+       # XPath para el campo de entrada
+       phone_input_xpath = "//input[@id='phone']"
+    
+       # Espera a que el campo sea visible
+       phone_input = WebDriverWait(self.driver, 10).until(
+       EC.visibility_of_element_located((By.XPATH, phone_input_xpath)),
+       message="El campo de entrada para el número de teléfono no es visible"
+       )
+    
+       # Limpia el campo e ingresa el número
+       phone_input.clear()
+       phone_input.send_keys(phone_number)
+
+
+
+    def get_phone_number(self):
+       # Cambia aquí también el selector al correcto "#phone.input"
+       return self.driver.find_element(By.CSS_SELECTOR, "#phone").get_attribute("value")
+
 
     def add_card(self, card_info):
         form = wait_for_element(self.driver, *self.credit_card_form)
@@ -72,3 +103,7 @@ class UrbanRoutesPage:
 
     def wait_for_driver_info(self):
         return wait_for_element(self.driver, *self.driver_info).text
+
+    def get_selected_tariff(self):
+        tariff_element = self.driver.find_element(By.XPATH, "//div[contains(text(), 'Comfort')]")
+        return tariff_element.text
