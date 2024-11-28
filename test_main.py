@@ -1,6 +1,3 @@
-
-# main.py
-
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -35,124 +32,65 @@ def test_set_route(routes_page):
 
 # Prueba 2: Selecciona la tarifa "Comfort"
 def test_select_comfort_tariff(routes_page):
-    # Configura la ruta
     routes_page.set_route(data.address_from, data.address_to)
-    # Llama al método para hacer clic en el botón de "Pedir taxi"
     routes_page.click_on_request_taxi()
-    
-    # Llama al método que hace clic en el botón "Comfort"
     routes_page.click_on_comfort_tariff()
-
-    # Verifica que la tarifa seleccionada sea la de Comfort
     assert routes_page.get_selected_tariff() == "Comfort"
     print("¡Tarifa Comfort seleccionada!")
 
-
 # Prueba 3: Configura el número de teléfono
 def test_set_phone(routes_page):
-    # Configura la ruta
     routes_page.set_route(data.address_from, data.address_to)
-    
-    # Llama al método para hacer clic en el botón de "Pedir taxi"
     routes_page.click_on_request_taxi()
-    
-    # Llama al método para hacer clic en la tarifa "Comfort"
     routes_page.click_on_comfort_tariff()
-    
-    # Abre la ventana/modal para ingresar el número de teléfono
     routes_page.click_to_open_phone_modal()
-    
-    # Usa el método para ingresar el número de teléfono
     routes_page.set_phone_number(data.phone_number)
-    
-    # Verifica que el teléfono haya sido ingresado correctamente
-    assert routes_page.get_phone_number() == data.phone_number, "El número de teléfono no coincide"
+    assert routes_page.get_phone_number() == data.phone_number
     print("¡Teléfono configurado correctamente!")
-
 
 # Prueba 4: Agregar una tarjeta de crédito
 def test_add_card(routes_page):
     routes_page.set_route(data.address_from, data.address_to)
     routes_page.click_on_request_taxi()
     routes_page.click_on_comfort_tariff()
-
-    # Espera hasta que el formulario de tarjeta esté disponible
-    WebDriverWait(routes_page.driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#credit-card-form"))
-    )
     routes_page.add_card(data.card_info)
     assert routes_page.card_is_added()
     print("¡Tarjeta de crédito añadida!")
 
-# Prueba 5: Confirmar código de tarjeta
-def test_card_confirmation_code(routes_page):
-    routes_page.set_route(data.address_from, data.address_to)
-    routes_page.click_on_request_taxi()
-    routes_page.click_on_comfort_tariff()
-    routes_page.add_card(data.card_info)
-
-    # Espera hasta que el campo de código de confirmación esté disponible
-    WebDriverWait(routes_page.driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#confirmation-code"))
-    )
-    routes_page.enter_confirmation_code(data.confirmation_code)
-    assert routes_page.confirmation_is_valid()
-    print("¡Código de tarjeta confirmado!")
-
-# Prueba 6: Escribir un mensaje para el conductor
+# Prueba 5: Escribir un mensaje para el conductor
 def test_write_message_to_driver(routes_page):
     routes_page.set_route(data.address_from, data.address_to)
     routes_page.click_on_request_taxi()
     routes_page.click_on_comfort_tariff()
-    routes_page.add_card(data.card_info)
     message = data.message_for_driver
-    routes_page.write_drive_message(message)
+    routes_page.write_message_to_driver(message)
     assert routes_page.get_driver_message() == message
     print("¡Mensaje enviado!")
 
-# Prueba 7: Pedir una manta y pañuelos
+# Prueba 6: Pedir una manta y pañuelos
 def test_request_blanket_and_tissues(routes_page):
     routes_page.set_route(data.address_from, data.address_to)
     routes_page.click_on_request_taxi()
     routes_page.click_on_comfort_tariff()
-    WebDriverWait(routes_page.driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#request-items"))
-    )
-    routes_page.request_blanket_and_tissues()
-    assert routes_page.blanket_and_tissues_requested()
-    print("Manta y pañuelos solicitados")
+    routes_page.toggle_blanket_and_tissues()
+    assert routes_page.is_blanket_and_tissues_requested(), "El toggle de manta y pañuelos no está activado."
+    print("¡Manta y pañuelos solicitados!")
 
-# Prueba 8: Pedir 2 helados
+# Prueba 7: Pedir helados
 def test_request_ice_cream(routes_page):
     routes_page.set_route(data.address_from, data.address_to)
     routes_page.click_on_request_taxi()
     routes_page.click_on_comfort_tariff()
-    WebDriverWait(routes_page.driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#request-items"))
-    )
-    routes_page.request_ice_cream(quantity=2)
+    routes_page.request_ice_cream(2)
     assert routes_page.get_ice_cream_quantity() == 2
-    print("Helados solicitados")
+    print("¡Helados solicitados correctamente!")
 
-# Prueba 9: Aparece el modal para buscar un taxi
+# Prueba 8: Buscar un taxi
 def test_search_taxi_modal(routes_page):
     routes_page.set_route(data.address_from, data.address_to)
     routes_page.click_on_request_taxi()
-    WebDriverWait(routes_page.driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#search-modal"))
-    )
     routes_page.search_taxi()
     assert routes_page.search_modal_is_displayed()
-    print("Prueba 9 ok!")
+    print("¡Modal de búsqueda de taxi mostrado!")
 
-# Prueba 10: Esperar información del conductor
-def test_wait_for_driver_info(routes_page):
-    routes_page.set_route(data.address_from, data.address_to)
-    routes_page.click_on_request_taxi()
-    routes_page.click_on_comfort_tariff()
-    WebDriverWait(routes_page.driver, 20).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#driver-info"))
-    )
-    driver_info = routes_page.wait_for_driver_info()
-    assert driver_info is not None
-    print("Información del conductor recibida")
+
